@@ -74,9 +74,18 @@ class Bot():
                 continue
 
             #at this point the ban needs to be issued
-            comment.remove()
+            
+            # protect against insufficient mod perms by using try
+            try:
+                comment.remove()
+            except:
+                pass
+
             print('banning /u/'+comment.author.name+' from /r/'+comment.subreddit.display_name)
-            comment.subreddit.add_ban(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE % {"subreddit":comment.subreddit.display_name})
+            try:
+                comment.subreddit.add_ban(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE % {"subreddit":comment.subreddit.display_name})
+            except:
+                pass
         print('...done')
         
     def check_for_new_banned(self):
