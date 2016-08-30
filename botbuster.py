@@ -6,6 +6,8 @@ import re
 r=praw.Reddit('Mod helper by captainmeta4')
 ME = r.get_redditor('BotBust')
 SUBREDDIT = r.get_subreddit('BotBust')
+LOG_SUB = r.get_subreddit('BotBustModLog')
+LOG_TITLE = "/u/%(user)s banned from /r/%(subreddit)s"
 
 BAN_NOTE = "BotBusted!"
 BAN_MESSAGE = "Known comment bots are not welcome in /r/%(subreddit)s!"
@@ -87,6 +89,16 @@ class Bot():
             except:
                 pass
         print('...done')
+
+    def log_action(self, comment):
+
+        user = comment.author.name
+        sub = comment.subreddit.display_name
+        url = comment.permalink
+
+        title = LOG_TITLE % {"user":user, "subreddit":sub}
+
+        r.submit(LOG_SUB, title, url=url
         
     def check_for_new_banned(self):
 
