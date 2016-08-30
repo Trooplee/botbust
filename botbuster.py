@@ -95,7 +95,7 @@ class Bot():
             need_to_reload = True
 
             #get the username
-            name = re.match("https?://reddit.com/u(ser)?/(\w+)/?", submission.url).group(2)
+            re.match("https?://(www\.)?reddit.com/u(ser)?/(\w+)/?", submission.url).group(3)
 
             #friend the redditor
             r.get_redditor(name).friend()
@@ -112,7 +112,7 @@ class Bot():
             need_to_reload = True
 
             #get the username
-            name = re.match("https?://reddit.com/u(ser)?/(\w+)/?", submission.url).group(2)
+            name = re.match("https?://(www\.)?reddit.com/u(ser)?/(\w+)/?", submission.url).group(3)
 
             #unfriend the redditor
             r.get_redditor(name).unfriend()
