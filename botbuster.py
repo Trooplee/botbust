@@ -11,6 +11,10 @@ LOG_TITLE = "/u/%(user)s banned from /r/%(subreddit)s"
 
 BAN_NOTE = "BotBusted!"
 BAN_MESSAGE = "Known comment bots are not welcome in /r/%(subreddit)s!"
+WELCOME_MESSAGE = ("Hello, moderators of /r/%(subreddit)s."
+                   "\n\nI am now helping keep your subreddit free of known worthless comment bots."
+                   "\n\nFor more information, or to submit a worthless bot to my banlist, please visit /r/BotBust."
+                   )
 
 class Bot():
 
@@ -58,6 +62,7 @@ class Bot():
             try:
                 r.accept_moderator_invite(message.subreddit)
                 print('accepted invite to /r/'+message.subreddit.display_name)
+                #r.send_message(comment.subreddit, "Reporting for duty!",WELCOME_MESSAGE % {"subreddit":comment.subreddit.display_name}) 
             except:
                 pass
         print('...done')
@@ -70,6 +75,10 @@ class Bot():
 
             #handle comments by [deleted] users
             if comment.author == None:
+                continue
+
+            #ignore removed comments
+            if comment.banned_by:
                 continue
 
             #ignore non-friend comments
@@ -87,7 +96,7 @@ class Bot():
             print('banning /u/'+comment.author.name+' from /r/'+comment.subreddit.display_name)
             try:
                 comment.subreddit.add_ban(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE % {"subreddit":comment.subreddit.display_name})
-                self.log_action(comment)
+                #self.log_action(comment)
             except:
                 pass
         print('...done')
