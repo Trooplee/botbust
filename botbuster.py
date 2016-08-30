@@ -71,7 +71,7 @@ class Bot():
         
         #load comments
         print('patrolling /r/mod...')
-        for comment in r.get_subreddit('mod').get_comments(limit=100):
+        for comment in r.get_subreddit('mod').get_comments(limit=200):
 
             #handle comments by [deleted] users
             if comment.author == None:
