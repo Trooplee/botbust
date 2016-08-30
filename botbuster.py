@@ -47,7 +47,7 @@ class Bot():
 
         print('checking inbox...')
 
-        for message in r.get_inbox(limit=None):
+        for message in r.get_unread(limit=None):
 
             #assume messages are invites
 
