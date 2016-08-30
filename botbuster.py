@@ -39,6 +39,7 @@ class Bot():
     def run(self):
 
         self.login()
+        self.reload_friends()
 
         while True:
             self.check_for_mod_invites()
@@ -86,6 +87,7 @@ class Bot():
             print('banning /u/'+comment.author.name+' from /r/'+comment.subreddit.display_name)
             try:
                 comment.subreddit.add_ban(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE % {"subreddit":comment.subreddit.display_name})
+                self.log_action(comment)
             except:
                 pass
         print('...done')
@@ -98,7 +100,7 @@ class Bot():
 
         title = LOG_TITLE % {"user":user, "subreddit":sub}
 
-        r.submit(LOG_SUB, title, url=url
+        r.submit(LOG_SUB, title, url=url)
         
     def check_for_new_banned(self):
 
