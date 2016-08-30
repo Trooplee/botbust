@@ -6,7 +6,7 @@ import re
 r=praw.Reddit('Mod helper by captainmeta4')
 ME = r.get_redditor('BotBust')
 SUBREDDIT = r.get_subreddit('BotBust')
-LOG_SUB = r.get_subreddit('BotBustModLog')
+LOG_SUB = r.get_subreddit('BotBustLog')
 LOG_TITLE = "/u/%(user)s banned from /r/%(subreddit)s"
 
 BAN_NOTE = "BotBusted!"
