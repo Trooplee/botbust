@@ -85,6 +85,10 @@ class Bot():
             if comment.author.name not in self.friends:
                 continue
 
+            #ignore comments whose authors are botbustproof
+            if "botbustproof" in comment.author_flair_css_class:
+                continue
+
             #at this point the ban needs to be issued
             
             # protect against insufficient mod perms by using try
