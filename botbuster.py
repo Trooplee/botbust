@@ -100,12 +100,12 @@ class Bot():
             print('banning /u/'+comment.author.name+' from /r/'+comment.subreddit.display_name)
             try:
                 comment.subreddit.add_ban(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE % {"subreddit":comment.subreddit.display_name})
-                #self.log_action(comment)
+                self.log_ban(comment)
             except:
                 pass
         print('...done')
 
-    def log_action(self, comment):
+    def log_ban(self, comment):
 
         user = comment.author.name
         sub = comment.subreddit.display_name
