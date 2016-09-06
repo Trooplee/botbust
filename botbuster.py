@@ -20,35 +20,34 @@ class Bot():
 
     def __init__(self):
 
-        self.friends=[]
+        self.moderated=[]
 
-    def reload_friends(self):
+    def reload_moderated(self):
 
-        self.friends = []
+        self.moderated=[]
 
-        print('refreshing banlist...')
+        for subreddit in r.get_my_moderation(limit=None):
+            self.moderated.append(subreddit.display_name)
 
-        for redditor in r.get_friends(limit=None):
-            self.friends.append(redditor.name)
-
-        print('...done')
 
     def login(self):
         
         print('logging in...')
-        r.login(ME, os.environ.get('password'))
+        r.login(ME, os.environ.get('password'), disable_warning=True)
         print('...done')
 
 
     def run(self):
 
         self.login()
-        self.reload_friends()
+        
+        self.check_for_mod_invites()
+        self.reload_moderated()
 
         while True:
-            self.check_for_mod_invites()
             self.check_for_new_banned()
-            self.patrol_r_mod()
+            self.patrol_r_friends()
+            self.check_for_mod_invites()
 
     def check_for_mod_invites(self):
 
@@ -63,31 +62,28 @@ class Bot():
                 r.accept_moderator_invite(message.subreddit)
                 print('accepted invite to /r/'+message.subreddit.display_name)
                 #r.send_message(comment.subreddit, "Reporting for duty!",WELCOME_MESSAGE % {"subreddit":comment.subreddit.display_name}) 
+                self.moderated.append(message.subreddit.display_name)
             except:
                 pass
         print('...done')
 
-    def patrol_r_mod(self):
+    def patrol_r_friends(self):
         
         #load comments
-        print('patrolling /r/mod...')
-        for comment in r.get_subreddit('mod').get_comments(limit=200):
+        print('patrolling /r/friends...')
+        for comment in r.get_subreddit('friends').get_comments(limit=100):
 
-            #handle comments by [deleted] users
-            if comment.author == None:
-                continue
+            #All comments here will be by a banned account.
+            #the only thing to check is that it's in a moderated subreddit
 
-            #ignore removed comments
-            if comment.banned_by:
-                continue
-
-            #ignore non-friend comments
-            if comment.author.name not in self.friends:
+            if comment.subreddit.display_name not in self.moderated:
                 continue
 
             #ignore comments whose authors are botbustproof
             if "botbustproof" in comment.author_flair_css_class:
                 continue
+
+            
 
             #at this point the ban needs to be issued
             
