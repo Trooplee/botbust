@@ -82,7 +82,7 @@ class Bot():
             #ignore comments whose authors are botbustproof
             if comment.author_flair_css_class:
                 if "botbustproof" in comment.author_flair_css_class:
-                continue
+                    continue
 
             
 
