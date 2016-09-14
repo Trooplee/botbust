@@ -117,7 +117,6 @@ class Bot():
         
     def check_for_new_banned(self):
 
-        need_to_reload = False
 
         print('checking for updates to banlist...')
 
@@ -156,14 +155,6 @@ class Bot():
             submission.set_flair(flair_text="Unbanned", flair_css_class="unbanned")
 
         print('...done')
-        #reload the banlist
-        if need_to_reload:
-            self.reload_friends()
-
-
-        
-
-
 
 
 if __name__=="__main__":
