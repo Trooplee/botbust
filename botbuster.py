@@ -113,7 +113,7 @@ class Bot():
 
         title = LOG_TITLE % {"user":user, "subreddit":sub}
 
-        r.submit(LOG_SUB, title, url=url)
+        r.submit(LOG_SUB, title, url=url).approve()
         
     def check_for_new_banned(self):
 
