@@ -1,6 +1,7 @@
 import praw
 import os
 import re
+#import cleanup
 
 #set globals
 r=praw.Reddit('Mod helper by captainmeta4')
@@ -21,6 +22,7 @@ class Bot():
     def __init__(self):
 
         self.moderated=[]
+        self.friends=[]
 
     def reload_moderated(self):
 
@@ -28,6 +30,11 @@ class Bot():
 
         for subreddit in r.get_my_moderation(limit=None):
             self.moderated.append(subreddit.display_name)
+
+    def reload_friends(self):
+        self.friends=[]
+        for user in r.get_friends(limit=None):
+            self.friends.append(user.name)
 
 
     def login(self):
@@ -43,6 +50,7 @@ class Bot():
         
         self.check_for_mod_invites()
         self.reload_moderated()
+        self.reload_friends()
 
         while True:
             self.check_for_new_banned()
@@ -119,6 +127,27 @@ class Bot():
 
 
         print('checking for updates to banlist...')
+        need_to_reload=False
+
+        #process pending check-for-bans. search by flair
+        for submission in SUBREDDIT.search("flair:check-if-banned",limit=None):
+
+            #ignore any stray search results
+            if submission.link_flair_css_class !="check-if-banned":
+                continue
+
+            #get the username
+            name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
+
+            print('checking ban state on /u/'+name)
+            
+            if name in self.friends:
+                submission.set_flair(flair_text="Already Banned!", flair_css_class="banned")
+
+            else:
+                submission.set_flair(flair_text="For Review", flair_css_class = "exclam")
+            
+            
 
         #process pending bans. search by flair
         for submission in SUBREDDIT.search("flair:to-be-banned",limit=None):
@@ -136,6 +165,7 @@ class Bot():
             r.get_redditor(name).friend()
             print(name+" banned!")
             submission.set_flair(flair_text="Banned!", flair_css_class="banned")
+
 
             #process pending unbans
 
@@ -155,6 +185,9 @@ class Bot():
             submission.set_flair(flair_text="Unbanned", flair_css_class="unbanned")
 
         print('...done')
+
+        if need_to_reload:
+            self.reload_friends
 
 
 if __name__=="__main__":

@@ -8,7 +8,7 @@ r.login('BotBust',input('password for botbust: '), disable_warning=True)
 def get_posts(name):
 
     for submission in r.search("title:"+name, subreddit="botbust"):
-        if name not in submission.title:
+        if name.lower() not in submission.title.lower():
             continue
         yield submission
 
