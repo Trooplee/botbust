@@ -130,7 +130,7 @@ class Bot():
         need_to_reload=False
 
         #process pending check-for-bans. search by flair
-        for submission in SUBREDDIT.search("flair:checkban",limit=None):
+        for submission in SUBREDDIT.search("flair_css_class:checkban",limit=None):
 
             #ignore any stray search results
             if submission.link_flair_css_class !="checkban":
@@ -150,7 +150,7 @@ class Bot():
             
 
         #process pending bans. search by flair
-        for submission in SUBREDDIT.search("flair:banpending",limit=None):
+        for submission in SUBREDDIT.search("flair_css_class:banpending",limit=None):
 
             #ignore any stray search results
             if submission.link_flair_css_class != "banpending":
@@ -169,7 +169,7 @@ class Bot():
 
             #process pending unbans
 
-        for submission in SUBREDDIT.search("flair:unbanpending"):
+        for submission in SUBREDDIT.search("flair_css_class:unbanpending"):
             
             if submission.link_flair_css_class != "unbanpending":
                 continue
