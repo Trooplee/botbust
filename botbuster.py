@@ -19,7 +19,7 @@ LOG_TITLE = "/u/{0} banned from /r/{1}"
 
 BAN_NOTE = "BotBusted!"
 BAN_MESSAGE = ("Known comment bots are not welcome in /r/{0}"
-               "\n\n*[I am a bot, and this action was performed automatically](/r/botbust). "
+               "\n\n*[I am a bot, and this action was performed automatically](/r/botbust/about/sticky). "
                "If you wish to dispute your status as a blacklisted comment bot, please "
                "[click here](https://www.reddit.com/message/compose?to=%2Fr%2FBotBust&subject=ban%20dispute:%20{1}).*"
                 )
