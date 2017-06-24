@@ -21,7 +21,7 @@ BAN_NOTE = "BotBusted!"
 BAN_MESSAGE = ("Known comment bots are not welcome in /r/{0}"
                "\n\n*[I am a bot, and this action was performed automatically](/r/botbust). "
                "If you wish to dispute your status as a blacklisted comment bot, please "
-               "[click here](https://www.reddit.com/message/compose?to=%2Fr%2FBotBust&subject=ban%20dispute:%20{1})."
+               "[click here](https://www.reddit.com/message/compose?to=%2Fr%2FBotBust&subject=ban%20dispute:%20{1}).*"
                 )
 WELCOME_MESSAGE = ("Hello, moderators of /r/{0}"
                    "\n\nI am now helping keep your subreddit free of known worthless comment bots."
