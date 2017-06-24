@@ -4,18 +4,32 @@ import re
 #import cleanup
 
 #set globals
-r=praw.Reddit('Mod helper by captainmeta4')
-ME = r.get_redditor('BotBust')
-SUBREDDIT = r.get_subreddit('BotBust')
-LOG_SUB = r.get_subreddit('BotBustLog')
-LOG_TITLE = "/u/%(user)s banned from /r/%(subreddit)s"
+
+r=praw.Reddit(user_agent='mod helper by captainmeta4',
+              username = 'botbust',
+              password = os.environ.get('password'),
+              client_id= os.environ.get('client_id'),
+              client_secret= os.environ.get('client_secret')
+              )
+
+ME = r.user.me()
+SUBREDDIT = r.subreddit('BotBust')
+LOG_SUB = r.subreddit('BotBustLog')
+LOG_TITLE = "/u/{0} banned from /r/{1}"
 
 BAN_NOTE = "BotBusted!"
-BAN_MESSAGE = "Known comment bots are not welcome in /r/%(subreddit)s!"
-WELCOME_MESSAGE = ("Hello, moderators of /r/%(subreddit)s."
+BAN_MESSAGE = ("Known comment bots are not welcome in /r/{0}"
+               "\n\n*[I am a bot, and this action was performed automatically](/r/botbust). "
+               "If you wish to dispute your status as a blacklisted comment bot, please "
+               "[click here](https://www.reddit.com/message/compose?to=%2Fr%2FBotBust&subject=ban%20dispute:%20{1})."
+                )
+WELCOME_MESSAGE = ("Hello, moderators of /r/{0}"
                    "\n\nI am now helping keep your subreddit free of known worthless comment bots."
                    "\n\nFor more information, or to submit a worthless bot to my banlist, please visit /r/BotBust."
                    )
+NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
+                "\n\nThank you for your interest in BotBust."
+                "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
 class Bot():
 
@@ -28,25 +42,16 @@ class Bot():
 
         self.moderated=[]
 
-        for subreddit in r.get_my_moderation(limit=None):
+        for subreddit in r.user.moderator_subreddits(limit=None):
             self.moderated.append(subreddit.display_name)
 
     def reload_friends(self):
         self.friends=[]
-        for user in r.get_friends(limit=None):
+        for user in r.user.friends():
             self.friends.append(user.name)
 
 
-    def login(self):
-        
-        print('logging in...')
-        r.login(ME, os.environ.get('password'), disable_warning=True)
-        print('...done')
-
-
     def run(self):
-
-        self.login()
         
         self.check_for_mod_invites()
         self.reload_moderated()
@@ -61,16 +66,29 @@ class Bot():
 
         print('checking inbox...')
 
-        for message in r.get_unread(limit=None):
+        for message in r.inbox.unread(limit=None):
+            message.mark_read()
 
-            #assume messages are invites
+            #filter out everything but PMs
+            if not message.fullname.startswith('t4_'):
+                continue
 
-            message.mark_as_read()
+            #filter out everything not sent by a subreddit
+            if message.author is not None:
+                continue
+
+            #filter out messages not associated with a subreddit
+            if message.subreddit is None:
+                continue
+            
             try:
-                r.accept_moderator_invite(message.subreddit)
-                print('accepted invite to /r/'+message.subreddit.display_name)
-                #r.send_message(comment.subreddit, "Reporting for duty!",WELCOME_MESSAGE % {"subreddit":comment.subreddit.display_name}) 
-                self.moderated.append(message.subreddit.display_name)
+                if not message.subreddit.over18:
+                    message.subreddit.mod.accept_invite()
+                    print('accepted invite to /r/'+message.subreddit.display_name)
+                    self.moderated.append(message.subreddit.display_name)
+                else:
+                    message.reply(NSFW_MESSAGE.format(message.subreddit.display_name))
+                    
             except:
                 pass
         print('...done')
@@ -79,7 +97,7 @@ class Bot():
         
         #load comments
         print('patrolling /r/friends...')
-        for comment in r.get_subreddit('friends').get_comments(limit=100):
+        for comment in r.subreddit('friends').comments(limit=100):
 
             #All comments here will be by a banned account.
             #the only thing to check is that it's in a moderated subreddit
@@ -101,13 +119,13 @@ class Bot():
             
             # protect against insufficient mod perms by using try
             try:
-                comment.remove()
+                comment.mod.remove()
             except:
                 pass
 
             print('banning /u/'+comment.author.name+' from /r/'+comment.subreddit.display_name)
             try:
-                comment.subreddit.add_ban(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE % {"subreddit":comment.subreddit.display_name})
+                comment.subreddit.banned.add(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE.format(comment.subreddit.display_name, comment.author.name))
                 self.log_ban(comment)
             except:
                 pass
@@ -117,11 +135,11 @@ class Bot():
 
         user = comment.author.name
         sub = comment.subreddit.display_name
-        url = comment.permalink
+        url = "https://reddit.com"+comment.permalink()
+        
+        title = LOG_TITLE.format(user, sub)
 
-        title = LOG_TITLE % {"user":user, "subreddit":sub}
-
-        r.submit(LOG_SUB, title, url=url).approve()
+        LOG_SUB.submit(title, url=url).mod.approve()
         
     def check_for_new_banned(self):
 
@@ -142,10 +160,10 @@ class Bot():
             print('checking ban state on /u/'+name)
             
             if name in self.friends:
-                submission.set_flair(flair_text="Already Banned!", flair_css_class="banned")
+                submission.mod.flair(text="Already Banned!", css_class="banned")
 
             else:
-                submission.set_flair(flair_text="For Review", flair_css_class = "exclam")
+                submission.mod.flair(text="For Review", css_class = "exclam")
             
             
 
@@ -162,9 +180,9 @@ class Bot():
             name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
 
             #friend the redditor
-            r.get_redditor(name).friend()
+            r.redditor(name).friend()
             print(name+" banned!")
-            submission.set_flair(flair_text="Banned!", flair_css_class="banned")
+            submission.mod.flair(text="Banned!", css_class="banned")
 
 
             #process pending unbans
@@ -180,14 +198,14 @@ class Bot():
             name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
 
             #unfriend the redditor
-            r.get_redditor(name).unfriend()
+            r.redditor(name).unfriend()
             print(name+" unbanned")
-            submission.set_flair(flair_text="Unbanned", flair_css_class="unbanned")
+            submission.mod.flair(text="Unbanned", css_class="unbanned")
 
         print('...done')
 
         if need_to_reload:
-            self.reload_friends
+            self.reload_friends()
 
 
 if __name__=="__main__":
