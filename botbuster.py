@@ -64,7 +64,7 @@ class Bot():
 
     def check_for_mod_invites(self):
 
-        print('checking inbox...')
+        
 
         for message in r.inbox.unread(limit=None):
             message.mark_read()
@@ -91,12 +91,12 @@ class Bot():
                     
             except:
                 pass
-        print('...done')
+        
 
     def patrol_r_friends(self):
         
         #load comments
-        print('patrolling /r/friends...')
+        
         for comment in r.subreddit('friends').comments(limit=100):
 
             #All comments here will be by a banned account.
@@ -129,7 +129,7 @@ class Bot():
                 self.log_ban(comment)
             except:
                 pass
-        print('...done')
+        
 
     def log_ban(self, comment):
 
@@ -144,7 +144,7 @@ class Bot():
     def check_for_new_banned(self):
 
 
-        print('checking for updates to banlist...')
+        
         need_to_reload=False
 
         #process pending check-for-bans. search by flair
@@ -202,7 +202,7 @@ class Bot():
             print(name+" unbanned")
             submission.mod.flair(text="Unbanned", css_class="unbanned")
 
-        print('...done')
+        
 
         if need_to_reload:
             self.reload_friends()
