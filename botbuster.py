@@ -105,7 +105,7 @@ class Bot():
             if comment.subreddit.display_name not in self.moderated:
                 continue
 
-            if comment.banned_by:
+            if comment.mod.banned_by:
                 continue
 
             #ignore comments whose authors are botbustproof
