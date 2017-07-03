@@ -1,7 +1,7 @@
 import praw
 import os
 import re
-#import cleanup
+from collections import deque
 
 #set globals
 
@@ -37,6 +37,7 @@ class Bot():
 
         self.moderated=[]
         self.friends=[]
+        self.triggered=deque([],maxlen=100)
 
     def reload_moderated(self):
 
@@ -112,6 +113,10 @@ class Bot():
             if comment.author_flair_css_class:
                 if "botbustproof" in comment.author_flair_css_class:
                     continue
+                    
+            #avoid duplicate work
+            if comment.id in self.triggered:
+                continue
 
             
 
@@ -129,6 +134,9 @@ class Bot():
                 self.log_ban(comment)
             except:
                 pass
+              
+            #avoid duplicate work
+            self.triggered.append(comment.id)
         
 
     def log_ban(self, comment):
