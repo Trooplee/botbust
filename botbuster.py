@@ -87,6 +87,7 @@ class Bot():
                     message.subreddit.mod.accept_invite()
                     print('accepted invite to /r/'+message.subreddit.display_name)
                     self.moderated.append(message.subreddit.display_name)
+                    self.log_add(message.subreddit.display_name)
                 else:
                     message.reply(NSFW_MESSAGE.format(message.subreddit.display_name))
                     
@@ -137,13 +138,20 @@ class Bot():
               
             #avoid duplicate work
             self.triggered.append(comment.id)
+                      
+    def log_add(self, name):
+        url="https://reddit.com/r/{}".format(name)
+        title="Accepted mod invite to /r/{}".format(name)
+        LOG_SUB.submit(title, url=url).mod.approve()
+                      
+                      
         
 
     def log_ban(self, comment):
 
         user = comment.author.name
         sub = comment.subreddit.display_name
-        url = "https://reddit.com"+comment.permalink()
+        url = "https://reddit.com{}".format(comment.permalink())
         
         title = LOG_TITLE.format(user, sub)
 
