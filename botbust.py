@@ -56,14 +56,14 @@ class Bot():
 
         #Not currently checking for mod invites due to unannounced inbox change
         
-        #self.check_for_mod_invites()
+        self.check_for_mod_invites()
         self.reload_moderated()
         self.reload_friends()
 
         while True:
             self.check_for_new_banned()
             self.patrol_r_friends()
-            #self.check_for_mod_invites()
+            self.check_for_mod_invites()
 
     def check_for_mod_invites(self):
 
