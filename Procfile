@@ -1,1 +1,1 @@
-botbust: python botbuster.py
+botbust: python botbust.py
