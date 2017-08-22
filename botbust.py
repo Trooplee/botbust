@@ -31,6 +31,8 @@ NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
                 "\n\nThank you for your interest in BotBust."
                 "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
+ALREADY_BANNED='Thank you for submitting to BotBust. The account \\{} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
+
 class Bot():
 
     def __init__(self):
@@ -53,8 +55,6 @@ class Bot():
 
 
     def run(self):
-
-        #Not currently checking for mod invites due to unannounced inbox change
         
         self.check_for_mod_invites()
         self.reload_moderated()
@@ -66,8 +66,6 @@ class Bot():
             self.check_for_mod_invites()
 
     def check_for_mod_invites(self):
-
-        
 
         for message in r.inbox.unread(limit=None):
             message.mark_read()
@@ -178,7 +176,10 @@ class Bot():
             print('checking ban state on /u/'+name)
             
             if name in self.friends:
+                #flair the post, remove it, and add an explanatory comment
                 submission.mod.flair(text="Already Banned!", css_class="banned")
+                submission.mod.remove()
+                submission.reply(ALREADY_BANNED.format(name)).mod.distinguish(sticky=True)
 
             else:
                 submission.mod.flair(text="For Review", css_class = "exclam")
