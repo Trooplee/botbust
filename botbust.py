@@ -31,7 +31,7 @@ NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
                 "\n\nThank you for your interest in BotBust."
                 "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
-ALREADY_BANNED='Thank you for submitting to BotBust. The account \\{} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
+ALREADY_BANNED='Thank you for submitting to BotBust. The account \{} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
 
 class Bot():
 
