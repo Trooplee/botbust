@@ -170,6 +170,10 @@ class Bot():
             if submission.link_flair_css_class !="checkban":
                 continue
 
+            #ignore submissions that have been removed (by botbust itself, generally)
+            if submission.banned_by:
+                continue
+
             #get the username
             name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
 
