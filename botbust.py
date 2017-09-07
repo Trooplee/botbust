@@ -173,7 +173,7 @@ class Bot():
             #ignore submissions that have been removed (by botbust itself, generally)
             if submission.banned_by:
                 continue
-            if x.link_flair_text=="Already Banned!":
+            if submission.link_flair_text=="Already Banned!":
                 continue
 
             #get the username
