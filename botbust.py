@@ -31,7 +31,7 @@ NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
                 "\n\nThank you for your interest in BotBust."
                 "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
-ALREADY_BANNED='Thank you for submitting to BotBust. The account \{} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
+ALREADY_BANNED='Thank you for submitting to BotBust. The account {} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
 
 class Bot():
 
@@ -173,6 +173,8 @@ class Bot():
             #ignore submissions that have been removed (by botbust itself, generally)
             if submission.banned_by:
                 continue
+            if x.link_flair_text="Already Banned!":
+                continue
 
             #get the username
             name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
@@ -183,6 +185,8 @@ class Bot():
                 #flair the post, remove it, and add an explanatory comment
                 submission.mod.flair(text="Already Banned!", css_class="banned")
                 submission.mod.remove()
+                if name.startswith('_'):
+                    name='\\'+name
                 submission.reply(ALREADY_BANNED.format(name)).mod.distinguish(sticky=True)
 
             else:
