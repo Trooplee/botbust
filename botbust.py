@@ -171,9 +171,11 @@ class Bot():
                 continue
 
             #ignore submissions that have been removed (by botbust itself, generally)
-            if submission.banned_by:
+            if not submission.banned_by is None:
                 continue
             if submission.link_flair_text=="Already Banned!":
+                continue
+            elif submission.link_flair_css_class=='banned':
                 continue
 
             #get the username
@@ -188,9 +190,10 @@ class Bot():
                 if name.startswith('_'):
                     name='\\'+name
                 submission.reply(ALREADY_BANNED.format(name)).mod.distinguish(sticky=True)
-
+                print('/u/'+name+' is already banned')
             else:
                 submission.mod.flair(text="For Review", css_class = "exclam")
+                print('/u/'+name+' needs moderator review')
             
             
 
