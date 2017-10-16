@@ -5,12 +5,7 @@ from collections import deque
 
 #set globals
 
-r=praw.Reddit(user_agent='mod helper by captainmeta4',
-              username = 'botbust',
-              password = os.environ.get('password'),
-              client_id= os.environ.get('client_id'),
-              client_secret= os.environ.get('client_secret')
-              )
+r=praw.Reddit('botbust')
 
 ME = r.user.me()
 SUBREDDIT = r.subreddit('BotBust')
