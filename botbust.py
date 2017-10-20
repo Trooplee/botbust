@@ -35,6 +35,7 @@ class Bot():
         self.moderated=[]
         self.friends=[]
         self.triggered=deque([],maxlen=100)
+        self.checked=deque([],maxlen=200)
 
     def reload_moderated(self):
 
@@ -158,6 +159,8 @@ class Bot():
         
         need_to_reload=False
 
+        
+
         #process pending check-for-bans. search by flair
         for submission in SUBREDDIT.search("flair_css_class:checkban",syntax="lucene",limit=None):
 
@@ -165,13 +168,11 @@ class Bot():
             if submission.link_flair_css_class !="checkban":
                 continue
 
-            #ignore submissions that have been removed (by botbust itself, generally)
-            if not submission.banned_by is None:
+            #ignore submissions that have been checked already
+            if submission.id in self.checked:
                 continue
-            if submission.link_flair_text=="Already Banned!":
-                continue
-            elif submission.link_flair_css_class=='banned':
-                continue
+
+            self.checked.append(submission.id)
 
             #get the username
             name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
