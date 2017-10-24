@@ -2,6 +2,7 @@ import praw
 import os
 import re
 from collections import deque
+import threading
 
 #set globals
 
@@ -236,4 +237,7 @@ class Bot():
 
 if __name__=="__main__":
     b=Bot()
-    b.run()
+    while True:
+        t=threading.Thread(target=b.run, name='bot')
+        t.start()
+        t.join()
