@@ -147,7 +147,7 @@ class Bot():
 
         user = comment.author.name
         sub = comment.subreddit.display_name
-        url = "https://reddit.com{}".format(comment.permalink())
+        url = "https://reddit.com{}".format(comment.permalink)
         
         title = LOG_TITLE.format(user, sub)
 
