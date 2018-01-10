@@ -28,6 +28,8 @@ NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
                 "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
 ALREADY_BANNED='Thank you for submitting to BotBust. The account {} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
+MESSAGE_FORWARD='The following message was sent to BotBust by /u/{}:\n\n---\n\n{}'
+
 
 class Bot():
 
@@ -72,7 +74,9 @@ class Bot():
                 continue
 
             #filter out everything not sent by a subreddit
+            #forward to me
             if message.author is not None:
+                r.redditor('captainmeta4').message('Message Forward: {}'.format(message.subject),MESSAGE_FORWARD.format(message.author.name,message.body))
                 continue
 
             #filter out messages not associated with a subreddit
@@ -129,9 +133,10 @@ class Bot():
             print('banning /u/'+comment.author.name+' from /r/'+comment.subreddit.display_name)
             try:
                 comment.subreddit.banned.add(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE.format(comment.subreddit.display_name, comment.author.name))
-                self.log_ban(comment)
             except:
                 pass
+            else:
+                self.log_ban(comment)
               
             #avoid duplicate work
             self.triggered.append(comment.id)
@@ -238,6 +243,8 @@ class Bot():
 if __name__=="__main__":
     b=Bot()
     while True:
-        t=threading.Thread(target=b.run, name='bot')
-        t.start()
-        t.join()
+        try:
+            b.run()
+        except Exception as e:
+            print(str(e))
+        
