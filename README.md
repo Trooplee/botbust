@@ -2,7 +2,7 @@
 
 BotBust is a moderation assistance bot that bans known crappy comment bots. [Click here to view full details on /r/BotBust](https://redd.it/5092dg)
 
-#Running your own copy
+# Running your own copy
 
 If you moderate multiple networked subreddits, you may wish to use a clone of this bot to maintain a banlist across your network.
 
