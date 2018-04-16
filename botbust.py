@@ -171,7 +171,7 @@ class Bot():
         
 
         #process pending check-for-bans. search by flair
-        for submission in SUBREDDIT.search("flair_css_class:checkban",syntax="lucene",limit=None):
+        for submission in SUBREDDIT.search("flair:checking", syntax="lucene", limit=None):
 
             #ignore any stray search results
             if submission.link_flair_css_class !="checkban":
@@ -199,43 +199,37 @@ class Bot():
             else:
                 submission.mod.flair(text="For Review", css_class = "exclam")
                 print('/u/'+name+' needs moderator review')
+
             
             
 
-        #process pending bans. search by flair
-        for submission in SUBREDDIT.search("flair_css_class:banpending",syntax="lucene",limit=None):
+        #process pending bans/unbans. search by flair
+        for submission in SUBREDDIT.search('flair:pending', syntax="lucene", limit=None):
 
             #ignore any stray search results
-            if submission.link_flair_css_class != "banpending":
-                continue
+            if submission.link_flair_css_class == "banpending":
 
-            need_to_reload = True
+                need_to_reload = True
 
-            #get the username
-            name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
+                #get the username
+                name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
 
-            #friend the redditor
-            r.redditor(name).friend()
-            print(name+" banned!")
-            submission.mod.flair(text="Banned!", css_class="banned")
+                #friend the redditor
+                r.redditor(name).friend()
+                print(name+" banned!")
+                submission.mod.flair(text="Banned!", css_class="banned")
+           
+            elif submission.link_flair_css_class == "unbanpending":
 
+                need_to_reload = True
 
-            #process pending unbans
+                #get the username
+                name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
 
-        for submission in SUBREDDIT.search("flair_css_class:unbanpending",syntax="lucene", limit=None):
-            
-            if submission.link_flair_css_class != "unbanpending":
-                continue
-
-            need_to_reload = True
-
-            #get the username
-            name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
-
-            #unfriend the redditor
-            r.redditor(name).unfriend()
-            print(name+" unbanned")
-            submission.mod.flair(text="Unbanned", css_class="unbanned")
+                #unfriend the redditor
+                r.redditor(name).unfriend()
+                print(name+" unbanned")
+                submission.mod.flair(text="Unbanned", css_class="unbanned")
 
         
 
