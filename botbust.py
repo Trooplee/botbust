@@ -28,7 +28,7 @@ NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
                 "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
 ALREADY_BANNED='Thank you for submitting to BotBust. The account {} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
-MESSAGE_FORWARD='The following message was sent to BotBust by /u/{}:\n\n---\n\n{}'
+MESSAGE_FORWARD='The following message was sent to {} by /u/{}:\n\n---\n\n{}'
 
 
 class Bot():
@@ -79,7 +79,7 @@ class Bot():
                 #ignore pms from mod_mailer
                 if message.author.name in ['mod_mailer']:
                     continue
-                r.redditor('captainmeta4').message('Message Forward: {}'.format(message.subject),MESSAGE_FORWARD.format(message.author.name,message.body))
+                r.redditor('captainmeta4').message('Message Forward: {}'.format(message.subject),MESSAGE_FORWARD.format(message.dest,message.author.name,message.body))
                 continue
 
             #filter out messages not associated with a subreddit
