@@ -3,6 +3,7 @@ import os
 import re
 from collections import deque
 import threading
+import yaml
 
 #set globals
 
@@ -27,6 +28,18 @@ NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
                 "\n\nThank you for your interest in BotBust."
                 "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
+DEBARRED_MESSAGE=("Hello, moderators of /r/{}"
+                  "\n\nThank you for using BotBust. However, BotBust is being withdrawn from the subreddit due to the moderator status of the following debarred individual(s):"
+                  "\n\n{}Debarred individuals are not eligible to benefit from the BotBust service.")
+
+DEBARRED_INVITE=("Hello, moderators of /r/{}"
+                  "\n\nThank you for using BotBust. However, BotBust will not be serving your subreddit at this time due to the moderator status of the following debarred individual(s):"
+                  "\n\n{}Debarred individuals are not eligible to benefit from the BotBust service.")
+
+DEBARRED_SUBREDDIT=("Hello, moderators of /r/{}"
+                  "\n\nThank you for inviting BotBust. However, BotBust cannot service your subreddit due to its debarred status."
+                  "\n\nDebarred subreddits are not eligible to benefit from the BotBust service.")
+
 ALREADY_BANNED='Thank you for submitting to BotBust. The account {} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
 
 class Bot():
@@ -37,6 +50,34 @@ class Bot():
         self.friends=[]
         self.triggered=deque([],maxlen=100)
         self.checked=deque([],maxlen=200)
+
+    def load_debarments(self):
+
+        self.debarred=yaml.load(r.subreddit('captainmeta4bots').wiki['debar'].content_md)
+        for category in self.debarred:
+            for entry in category:
+                entry=entry.lower()
+
+    def check_all_debarments(self):
+        self.load_debarments()
+
+        for sub in r.user.moderator_subreddits(limit=None):
+            debarred=""
+            leave=False
+            for mod in sub.moderator():
+                    if mod.name.lower() in self.debarred['users']:
+                        debarred.append("* "+mod.name+"\n\n")
+                        leave=True
+            if leave:
+                message=DEBARRED_MESSAGE.format(subreddit.display_name, debarred)
+                sub.message("BotBust Withdrawal", message)                        
+                sub.moderator.leave()
+
+    def debarment_monitoring():
+        while True:
+            self.check_all_debarments()
+            time.sleep(3600)
+        
 
     def reload_moderated(self):
 
@@ -52,6 +93,9 @@ class Bot():
 
 
     def run(self):
+
+        debar_thread=threading.Thread(target=self.debarment_monitoring)
+        debar_thread.start()
         
         self.check_for_mod_invites()
         self.reload_moderated()
@@ -80,13 +124,34 @@ class Bot():
                 continue
             
             try:
-                if not message.subreddit.over18:
+                if message.subreddit.over18:
+                    message.reply(NSFW_MESSAGE.format(message.subreddit.display_name))
+                    continue
+            except:
+                pass
+            
+                self.load_debarments()
+                if message.subreddit.display_name in self.debarred['subreddits']:
+                    message.reply(DEBARRED_SUBREDDIT.format(message.subreddit.display_name))
+                    continue
+                debarred=""
+                deny=False
+                for mod in sub.moderator():
+                    if mod.name.lower() in self.debarred['users']:
+                        debarred.append("* "+mod.name+"\n\n")
+                        deny=True
+                if deny:
+                    message.reply(DEBARRED_INVITE.format(message.subreddit.display_name, debarred))
+                    continue
+            except:
+                pass
+            
+
+            try:                
                     message.subreddit.mod.accept_invite()
                     print('accepted invite to /r/'+message.subreddit.display_name)
                     self.moderated.append(message.subreddit.display_name)
                     self.log_add(message.subreddit.display_name)
-                else:
-                    message.reply(NSFW_MESSAGE.format(message.subreddit.display_name))
                     
             except:
                 pass
