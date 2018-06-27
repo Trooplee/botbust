@@ -41,6 +41,8 @@ DEBARRED_SUBREDDIT=("Hello, moderators of /r/{}"
                   "\n\nDebarred subreddits are not eligible to benefit from the BotBust service.")
 
 ALREADY_BANNED='Thank you for submitting to BotBust. The account {} is already on my blacklist. To avoid cluttering the subreddit, this submission has been removed.'
+MESSAGE_FORWARD='The following message was sent to {} by /u/{}:\n\n---\n\n{}'
+
 
 class Bot():
 
@@ -116,7 +118,12 @@ class Bot():
                 continue
 
             #filter out everything not sent by a subreddit
+            #forward to me
             if message.author is not None:
+                #ignore pms from mod_mailer
+                if message.author.name in ['mod_mailer']:
+                    continue
+                r.redditor('captainmeta4').message('Message Forward: {}'.format(message.subject),MESSAGE_FORWARD.format(message.dest,message.author.name,message.body))
                 continue
 
             #filter out messages not associated with a subreddit
@@ -194,9 +201,10 @@ class Bot():
             print('banning /u/'+comment.author.name+' from /r/'+comment.subreddit.display_name)
             try:
                 comment.subreddit.banned.add(comment.author, note="BotBusted!", ban_message = BAN_MESSAGE.format(comment.subreddit.display_name, comment.author.name))
-                self.log_ban(comment)
             except:
                 pass
+            else:
+                self.log_ban(comment)
               
             #avoid duplicate work
             self.triggered.append(comment.id)
@@ -228,7 +236,7 @@ class Bot():
         
 
         #process pending check-for-bans. search by flair
-        for submission in SUBREDDIT.search("flair_css_class:checkban",syntax="lucene",limit=None):
+        for submission in SUBREDDIT.search("flair:checking", syntax="lucene", limit=None):
 
             #ignore any stray search results
             if submission.link_flair_css_class !="checkban":
@@ -256,43 +264,37 @@ class Bot():
             else:
                 submission.mod.flair(text="For Review", css_class = "exclam")
                 print('/u/'+name+' needs moderator review')
+
             
             
 
-        #process pending bans. search by flair
-        for submission in SUBREDDIT.search("flair_css_class:banpending",syntax="lucene",limit=None):
+        #process pending bans/unbans. search by flair
+        for submission in SUBREDDIT.search('flair:pending', syntax="lucene", limit=None):
 
             #ignore any stray search results
-            if submission.link_flair_css_class != "banpending":
-                continue
+            if submission.link_flair_css_class == "banpending":
 
-            need_to_reload = True
+                need_to_reload = True
 
-            #get the username
-            name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
+                #get the username
+                name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
 
-            #friend the redditor
-            r.redditor(name).friend()
-            print(name+" banned!")
-            submission.mod.flair(text="Banned!", css_class="banned")
+                #friend the redditor
+                r.redditor(name).friend()
+                print(name+" banned!")
+                submission.mod.flair(text="Banned!", css_class="banned")
+           
+            elif submission.link_flair_css_class == "unbanpending":
 
+                need_to_reload = True
 
-            #process pending unbans
+                #get the username
+                name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
 
-        for submission in SUBREDDIT.search("flair_css_class:unbanpending",syntax="lucene", limit=None):
-            
-            if submission.link_flair_css_class != "unbanpending":
-                continue
-
-            need_to_reload = True
-
-            #get the username
-            name = re.match("https?://(\w{1,3}\.)?reddit.com/u(ser)?/([A-Za-z0-9_-]+)/?", submission.url).group(3)
-
-            #unfriend the redditor
-            r.redditor(name).unfriend()
-            print(name+" unbanned")
-            submission.mod.flair(text="Unbanned", css_class="unbanned")
+                #unfriend the redditor
+                r.redditor(name).unfriend()
+                print(name+" unbanned")
+                submission.mod.flair(text="Unbanned", css_class="unbanned")
 
         
 
@@ -303,6 +305,8 @@ class Bot():
 if __name__=="__main__":
     b=Bot()
     while True:
-        t=threading.Thread(target=b.run, name='bot')
-        t.start()
-        t.join()
+        try:
+            b.run()
+        except Exception as e:
+            print(str(e))
+        
