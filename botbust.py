@@ -4,6 +4,7 @@ import re
 from collections import deque
 import threading
 import yaml
+import time
 
 #set globals
 
@@ -68,14 +69,15 @@ class Bot():
             leave=False
             for mod in sub.moderator():
                     if mod.name.lower() in self.debarred['users']:
-                        debarred.append("* "+mod.name+"\n\n")
+                        debarred+="* "+mod.name+"\n\n"
                         leave=True
             if leave:
-                message=DEBARRED_MESSAGE.format(subreddit.display_name, debarred)
+                message=DEBARRED_MESSAGE.format(sub.display_name, debarred)
                 sub.message("BotBust Withdrawal", message)                        
                 sub.moderator.leave()
+                print("Departed {}".format(sub.display_name))
 
-    def debarment_monitoring():
+    def debarment_monitoring(self):
         while True:
             self.check_all_debarments()
             time.sleep(3600)
@@ -136,7 +138,8 @@ class Bot():
                     continue
             except:
                 pass
-            
+
+            try:
                 self.load_debarments()
                 if message.subreddit.display_name in self.debarred['subreddits']:
                     message.reply(DEBARRED_SUBREDDIT.format(message.subreddit.display_name))
@@ -145,7 +148,7 @@ class Bot():
                 deny=False
                 for mod in sub.moderator():
                     if mod.name.lower() in self.debarred['users']:
-                        debarred.append("* "+mod.name+"\n\n")
+                        debarred+="* "+mod.name+"\n\n"
                         deny=True
                 if deny:
                     message.reply(DEBARRED_INVITE.format(message.subreddit.display_name, debarred))
