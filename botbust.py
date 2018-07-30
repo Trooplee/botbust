@@ -30,11 +30,11 @@ NSFW_MESSAGE = ("Hello, moderators of /r/{0}"
                 "\n\nHowever, BotBust is not available for NSFW subreddits. Thank you for understanding.")
 
 DEBARRED_MESSAGE=("Hello, moderators of /r/{}"
-                  "\n\nThank you for using BotBust. However, BotBust is being withdrawn from the subreddit due to the moderator status of the following debarred individual(s):"
+                  "\n\nThank you for using BotBust. However, BotBust is being withdrawn from the subreddit due to the moderator status of the following debarred account(s):"
                   "\n\n{}Debarred individuals are not eligible to benefit from the BotBust service.")
 
 DEBARRED_INVITE=("Hello, moderators of /r/{}"
-                  "\n\nThank you for using BotBust. However, BotBust will not be serving your subreddit at this time due to the moderator status of the following debarred individual(s):"
+                  "\n\nThank you for using BotBust. However, BotBust will not be serving your subreddit at this time due to the moderator status of the following debarred account(s):"
                   "\n\n{}Debarred individuals are not eligible to benefit from the BotBust service.")
 
 DEBARRED_SUBREDDIT=("Hello, moderators of /r/{}"
@@ -69,7 +69,7 @@ class Bot():
             leave=False
             for mod in sub.moderator():
                     if mod.name.lower() in self.debarred['users']:
-                        debarred+="* "+mod.name+"\n\n"
+                        debarred+="* `"+mod.name+"`\n\n"
                         leave=True
             if leave:
                 message=DEBARRED_MESSAGE.format(sub.display_name, debarred)
@@ -148,7 +148,7 @@ class Bot():
                 deny=False
                 for mod in sub.moderator():
                     if mod.name.lower() in self.debarred['users']:
-                        debarred+="* "+mod.name+"\n\n"
+                        debarred+="* `"+mod.name+"`\n\n"
                         deny=True
                 if deny:
                     message.reply(DEBARRED_INVITE.format(message.subreddit.display_name, debarred))
