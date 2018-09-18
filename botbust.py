@@ -5,6 +5,7 @@ from collections import deque
 import threading
 import yaml
 import time
+import requests
 
 #set globals
 
@@ -106,6 +107,13 @@ class Bot():
             self.patrol_r_friends()
             self.check_for_mod_invites()
 
+            self.update_status()
+
+    def update_status(self):
+
+        data={"refresh":"62129581-rY93dhrcdOV9VdcW-KF7Waeqxko"}
+        requests.post("https://api.captainmeta4.me/reddit/botbust", data=data)
+        
     def check_for_mod_invites(self):
 
         for message in r.inbox.unread(limit=None):
