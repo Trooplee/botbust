@@ -107,7 +107,7 @@ class Bot():
             self.patrol_r_friends()
             self.check_for_mod_invites()
 
-            self.update_status()
+            #self.update_status()
 
     def update_status(self):
 
