@@ -9,11 +9,11 @@ import requests
 
 #set globals
 
-r=praw.Reddit('botbust')
+r=praw.Reddit('botbustNSFW_v2')
 
-ME = r.user.me()
-SUBREDDIT = r.subreddit('BotBust')
-LOG_SUB = r.subreddit('BotBustLog')
+ME = r.user.me('FloridaMMJInfo')
+SUBREDDIT = r.subreddit('botbustNSFW_v2')
+LOG_SUB = r.subreddit('botbustNSFW_v2_log')
 LOG_TITLE = "/u/{0} banned from /r/{1}"
 
 BAN_NOTE = "BotBusted!"
