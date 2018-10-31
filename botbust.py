@@ -11,7 +11,7 @@ import requests
 
 r=praw.Reddit('botbustNSFW_v2')
 
-ME = r.user.me('FloridaMMJInfo')
+ME = r.user.me('botbust_NSFW_v2')
 SUBREDDIT = r.subreddit('botbustNSFW_v2')
 LOG_SUB = r.subreddit('botbustNSFW_v2_log')
 LOG_TITLE = "/u/{0} banned from /r/{1}"
